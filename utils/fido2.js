@@ -4,9 +4,8 @@ const { arrayBufferToBase64, base64ToArrayBuffer, toArrayBuffer } = require('./c
 
 const f2l = new Fido2Lib({
     timeout: 60000,
-    rpId: "localhost",
+    rpId: "desktop-iet34cq.local",
     rpName: "WebAuthn",
-    rpIcon: "https://example.com/logo.png",
     challengeSize: 128,
     attestation: "none",
     cryptoParams: [-7],
@@ -35,8 +34,7 @@ async function registerFinish(req, res) {
 
         const attestationExpectations = {
             challenge: base64ToArrayBuffer(req.session.challenge),
-            // TODO https
-            origin: "http://localhost:3000",
+            origin: "https://desktop-iet34cq.local",
             factor: "either"
         };
 

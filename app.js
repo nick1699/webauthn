@@ -2,10 +2,19 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const https = require('https');
+const fs = require('fs');
 
 const registerRouter = require('./routes/register');
 
 const app = express();
+const port = 443;
+const hostname = 'desktop-iet34cq.local';
+
+const options = {
+    key: fs.readFileSync('./config/key.pem'),
+    cert: fs.readFileSync('./config/certificate.pem')
+};
 
 app.use(bodyParser.json());
 app.use(session({
@@ -17,6 +26,8 @@ app.use(session({
 app.use('/register', registerRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(3000, () => {
-    console.log('Server running on port 3000: http://localhost:3000');
+const server = https.createServer(options, app)
+
+server.listen(port, () => {
+    console.log(`Server running on port ${port}: https://${hostname}`);
 });
