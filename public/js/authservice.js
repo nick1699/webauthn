@@ -14,8 +14,13 @@ export async function startRegistration(username) {
     options.challenge = base64ToUint8Array(options.challenge);
     options.user.id = Uint8Array.from(options.user.id, c => c.charCodeAt(0));
 
-    const credential = await navigator.credentials.create({ publicKey: options });
-    return await finishRegistration(credential);
+    try {
+        const credential = await navigator.credentials.create({publicKey: options});
+        return await finishRegistration(credential);
+    } catch (error) {
+        console.error(error);
+        return { success: false };
+    }
 }
 
 async function finishRegistration(credential) {
