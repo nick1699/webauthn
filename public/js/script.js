@@ -1,6 +1,6 @@
 "use strict";
 async function startRegistration(username) {
-    const response = await fetch('/register-start', {
+    const response = await fetch('/register/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
@@ -31,7 +31,7 @@ async function finishRegistration(credential) {
         }
     };
 
-    const response = await fetch('/register-finish', {
+    const response = await fetch('/register/finish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
