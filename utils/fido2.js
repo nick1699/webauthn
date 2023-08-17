@@ -35,6 +35,7 @@ async function registerFinish(req, res) {
 
         const attestationExpectations = {
             challenge: base64ToArrayBuffer(req.session.challenge),
+            // TODO https
             origin: "http://localhost:3000",
             factor: "either"
         };
@@ -44,6 +45,10 @@ async function registerFinish(req, res) {
         publicKeyCredential.response.attestationObject = toArrayBuffer(publicKeyCredential.response.attestationObject);
 
         const regResult = await f2l.attestationResult(publicKeyCredential, attestationExpectations);
+
+        // TODO Datenhaltung implementieren ggf. wird Benutzername benötigt
+        // TODO clear challange
+        // https://github.com/webauthn-open-source/fido2-lib
 
         res.json({ success: true });
     } catch (error) {
