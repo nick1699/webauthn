@@ -12,13 +12,10 @@ async function startRegistration(username) {
     // Konvertieren Sie die Base64-kodierte Challenge in ein Uint8Array
     options.challenge = base64ToUint8Array(options.challenge);
 
-    console.log(options.challenge)
-
     // Konvertieren Sie die Base64-kodierte User-ID in ein Uint8Array
     options.user.id = Uint8Array.from(options.user.id, c => c.charCodeAt(0));
 
     const credential = await navigator.credentials.create({ publicKey: options });
-    console.log(credential)
 
     return await finishRegistration(credential);
 }

@@ -30,8 +30,6 @@ app.post('/register-start', async (req, res) => {
     registrationOptions.user.name = req.body.username;
     registrationOptions.user.displayName = req.body.username;
 
-    console.log(registrationOptions.challenge);
-
     registrationOptions.challenge = arrayBufferToBase64(registrationOptions.challenge)
     req.session.challenge = registrationOptions.challenge;
 
@@ -53,14 +51,8 @@ app.post('/register-finish', async (req, res) => {
     publicKeyCredential.response.clientDataJSON = toArrayBuffer(publicKeyCredential.response.clientDataJSON);
     publicKeyCredential.response.attestationObject = toArrayBuffer(publicKeyCredential.response.attestationObject);
 
-    const utf8Decoder = new TextDecoder('utf-8');
-    const decodedClientData = utf8Decoder.decode(publicKeyCredential.response.clientDataJSON)
-    const clientDataObj = JSON.parse(decodedClientData);
-    console.log(base64ToArrayBuffer(clientDataObj.challenge));
-
     // TODO catch error
     const regResult = await f2l.attestationResult(publicKeyCredential, attestationExpectations); // will throw on error
-    console.log(regResult);
 
     res.json({success: true});
 });
@@ -88,7 +80,6 @@ function toArrayBuffer(byteArray) {
     return buffer;
 }
 
-// Statische Dateien aus dem "public"-Verzeichnis bedienen
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(3000, () => {
