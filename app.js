@@ -6,6 +6,7 @@ const https = require('https');
 const fs = require('fs');
 
 const registerRouter = require('./routes/register');
+const loginRouter = require('./routes/login');
 
 const app = express();
 const port = 443;
@@ -24,6 +25,7 @@ app.use(session({
 }));
 
 app.use('/register', registerRouter);
+app.use('/login', loginRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 
 const server = https.createServer(options, app)
