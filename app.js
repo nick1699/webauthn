@@ -21,7 +21,10 @@ app.use(bodyParser.json());
 app.use(session({
     secret: 'khiu6dEHGIHIUz)U2h7zt7tv$a4dt5e5tzh',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        sameSite: 'lax'
+    }
 }));
 
 app.use('/register', registerRouter);

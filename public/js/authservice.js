@@ -65,8 +65,6 @@ export async function startAuthentication(username) {
 }
 
 async function finishAuthentication(username, credential) {
-    console.log(credential)
-
     const publicKeyCredential = {
         id: credential.id,
         type: credential.type,
