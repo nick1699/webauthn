@@ -1,6 +1,6 @@
 const {Fido2Lib} = require("fido2-lib");
 const crypto = require('crypto');
-const {arrayBufferToBase64, base64ToArrayBuffer, toArrayBuffer} = require('./converters');
+const {arrayBufferToBase64, base64ToArrayBuffer, toArrayBuffer} = require('../utils/converters');
 
 const inMemoryDB = new Map();
 const users = new Map();

@@ -5,8 +5,8 @@ const session = require('express-session');
 const https = require('https');
 const fs = require('fs');
 
-const registerRouter = require('./routes/register');
-const loginRouter = require('./routes/login');
+const registerRouter = require('./src/routes/register');
+const loginRouter = require('./src/routes/login');
 
 const app = express();
 const port = 443;
