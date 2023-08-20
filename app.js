@@ -20,7 +20,6 @@ const options = {
 };
 
 // Register middleware
-app.use(ensureAuthenticated);
 app.use(bodyParser.json());
 app.use(session({
     secret: 'khiu6dEHGIHIUz)U2h7zt7tv$a4dt5e5tzh',
@@ -30,6 +29,7 @@ app.use(session({
         sameSite: 'lax'
     }
 }));
+app.use(ensureAuthenticated);
 
 // Register routes
 app.use('/rest/register', registerRouter);
