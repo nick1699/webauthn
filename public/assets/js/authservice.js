@@ -2,7 +2,7 @@
 import {base64ToUint8Array} from './converters.js';
 
 export async function startRegistration(username) {
-    const response = await fetch('/register/start', {
+    const response = await fetch('/rest/register/start', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username})
@@ -34,7 +34,7 @@ async function finishRegistration(username, credential) {
         }
     };
 
-    const response = await fetch('/register/finish', {
+    const response = await fetch('/rest/register/finish', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username, publicKeyCredential})
@@ -44,7 +44,7 @@ async function finishRegistration(username, credential) {
 }
 
 export async function startAuthentication(username) {
-    const response = await fetch('/login/start', {
+    const response = await fetch('/rest/login/start', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username})
@@ -77,7 +77,7 @@ async function finishAuthentication(username, credential) {
         }
     };
 
-    const response = await fetch('/login/finish', {
+    const response = await fetch('/rest/login/finish', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username, publicKeyCredential})

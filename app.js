@@ -27,8 +27,8 @@ app.use(session({
     }
 }));
 
-app.use('/register', registerRouter);
-app.use('/login', loginRouter);
+app.use('/rest/register', registerRouter);
+app.use('/rest/login', loginRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 
 const server = https.createServer(options, app)
