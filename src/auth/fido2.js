@@ -101,8 +101,9 @@ async function loginFinish(req, res) {
 
         const authnResult = await f2l.assertionResult(publicKeyCredential, assertionExpectations);
 
-        // Update counter in the in-memory database
-        userInfo.counter = authnResult.counter;
+        userInfo.counter = authnResult.authnrData.get('counter');
+        req.session.isAuthenticated = true;
+        req.session.username = username;
 
         res.json({success: true});
     } catch (error) {
