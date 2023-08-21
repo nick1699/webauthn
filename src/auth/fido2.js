@@ -84,6 +84,11 @@ async function loginFinish(req, res) {
 
         const userInfo = inMemoryDB.get(username);
 
+        if (!userInfo) {
+            res.json({success: false});
+            return;
+        }
+
         const assertionExpectations = {
             challenge: base64ToArrayBuffer(req.session.challenge),
             origin: "https://desktop-iet34cq.local",
