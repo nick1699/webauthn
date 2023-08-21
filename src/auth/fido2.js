@@ -1,9 +1,9 @@
 const {Fido2Lib} = require("fido2-lib");
 const crypto = require('crypto');
 const {arrayBufferToBase64, base64ToArrayBuffer, toArrayBuffer} = require('../utils/converters');
+const Datastore = require('nedb');
 
-const inMemoryDB = new Map();
-const users = new Map();
+const usersDB = new Datastore({ filename: './db/users.db', autoload: true });
 
 const f2l = new Fido2Lib({
     timeout: 60000,
@@ -22,10 +22,10 @@ async function registerStart(req, res) {
         registrationOptions.user.name = req.body.username;
         registrationOptions.user.displayName = req.body.username;
 
-        users.set(registrationOptions.user.name, registrationOptions.user.id);
-
         registrationOptions.challenge = arrayBufferToBase64(registrationOptions.challenge);
         req.session.challenge = registrationOptions.challenge;
+        req.session.userId = registrationOptions.user.id;
+        req.session.username = registrationOptions.user.name;
 
         res.json({publicKey: registrationOptions});
     } catch (error) {
@@ -50,12 +50,12 @@ async function registerFinish(req, res) {
 
         const regResult = await f2l.attestationResult(publicKeyCredential, attestationExpectations);
 
-        inMemoryDB.set(username, {
-            publicKey: regResult.authnrData.get('credentialPublicKeyPem'),
-            counter: regResult.authnrData.get("counter")
+        // TODO Check if user exists
+        usersDB.insert({ id: req.session.userId, username: username, publicKey: regResult.authnrData.get('credentialPublicKeyPem'), counter: regResult.authnrData.get("counter") }, err => {
+            if (err) console.error("Database error:", err);
         });
 
-        delete req.session.challenge;
+        req.session.destroy();
 
         res.json({success: true});
     } catch (error) {
@@ -82,35 +82,43 @@ async function loginFinish(req, res) {
     try {
         const {username, publicKeyCredential} = req.body;
 
-        const userInfo = inMemoryDB.get(username);
+        usersDB.findOne({ username: username }, async (err, user) => {
+            if (err) {
+                console.error("Database error:", err);
+                return;
+            }
+            if (!user) {
+                res.json({success: false});
+                return;
+            }
 
-        if (!userInfo) {
-            res.json({success: false});
-            return;
-        }
+            const assertionExpectations = {
+                challenge: base64ToArrayBuffer(req.session.challenge),
+                origin: "https://desktop-iet34cq.local",
+                factor: "either",
+                publicKey: user.publicKey,
+                prevCounter: user.counter,
+                userHandle: user.id
+            };
 
-        const assertionExpectations = {
-            challenge: base64ToArrayBuffer(req.session.challenge),
-            origin: "https://desktop-iet34cq.local",
-            factor: "either",
-            publicKey: userInfo.publicKey,
-            prevCounter: userInfo.counter,
-            userHandle: users.get(username)
-        };
+            publicKeyCredential.rawId = toArrayBuffer(publicKeyCredential.rawId);
+            publicKeyCredential.response.clientDataJSON = toArrayBuffer(publicKeyCredential.response.clientDataJSON);
+            publicKeyCredential.response.authenticatorData = toArrayBuffer(publicKeyCredential.response.authenticatorData);
+            publicKeyCredential.response.signature = toArrayBuffer(publicKeyCredential.response.signature);
+            publicKeyCredential.response.userHandle = toArrayBuffer(publicKeyCredential.response.userHandle);
 
-        publicKeyCredential.rawId = toArrayBuffer(publicKeyCredential.rawId);
-        publicKeyCredential.response.clientDataJSON = toArrayBuffer(publicKeyCredential.response.clientDataJSON);
-        publicKeyCredential.response.authenticatorData = toArrayBuffer(publicKeyCredential.response.authenticatorData);
-        publicKeyCredential.response.signature = toArrayBuffer(publicKeyCredential.response.signature);
-        publicKeyCredential.response.userHandle = toArrayBuffer(publicKeyCredential.response.userHandle);
+            const authnResult = await f2l.assertionResult(publicKeyCredential, assertionExpectations);
 
-        const authnResult = await f2l.assertionResult(publicKeyCredential, assertionExpectations);
+            // TODO Fix db creating new entries when updating
+            usersDB.update({username: username}, {$set: {counter: authnResult.authnrData.get('counter')}}, {}, (err) => {
+                if (err) console.error("Database error:", err);
+            });
 
-        userInfo.counter = authnResult.authnrData.get('counter');
-        req.session.isAuthenticated = true;
-        req.session.username = username;
+            req.session.isAuthenticated = true;
+            req.session.username = username;
 
-        res.json({success: true});
+            res.json({success: true});
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error completing authentication: " + error.message);

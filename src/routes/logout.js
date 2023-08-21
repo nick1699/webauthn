@@ -6,7 +6,7 @@ router.get('/', (req, res) => {
         if (err) {
             return res.status(500).send("Logout fehlgeschlagen.");
         }
-        res.redirect('/login');
+        res.redirect('/');
     });
 });
 
